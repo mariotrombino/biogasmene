@@ -98,11 +98,17 @@
 <td>Tara</td>
 	<td>Netto</td>
 	<td>Azioni</td>
+	<td>Effettuato</td>
 	</tr>
 	</thead>
 	<tbody>
-	
 	</tbody>
+	    <tfoot>
+            <tr>
+                <th colspan="7" style="text-align:right">Totale:</th>
+                <th></th>
+            </tr>
+        </tfoot>	
 	</table>
 	<hr>
 						<div class="panel-default panel-heading">
@@ -118,12 +124,17 @@
 	<td>Lordo</td>
 <td>Tara</td>
 	<td>Netto</td>
+	<td>Effettuato</td>
 	<td>Azioni</td>
 	</tr>
 	</thead>
-	<tbody>
-	
-	</tbody>
+	<tbody></tbody>
+	    <tfoot>
+            <tr>
+                <th colspan="7" style="text-align:right">Totale:</th>
+                <th></th>
+            </tr>
+        </tfoot>
 	</table>
 	</div>
 					</div>
@@ -454,6 +465,50 @@ $(function () {
 		},
 	})
 	$('table.ingresso').DataTable({
+        "footerCallback": function ( row, data, start, end, display ) {
+            var api = this.api(), data;
+ 
+            // Remove the formatting to get integer data for summation
+            var intVal = function ( i ) {
+                return typeof i === 'string' ?
+                    i.replace(/[\$,]/g, '')*1 :
+                    typeof i === 'number' ?
+                        i : 0;
+            };
+ 
+            // Total over all pages
+            lordo = api
+                .column( 2 )
+                .data()
+                .reduce( function (a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0 );
+            tara = api
+            .column( 3 )
+            .data()
+            .reduce( function (a, b) {
+                return intVal(a) + intVal(b);
+            }, 0 );   
+            total = lordo-tara;
+            // Total over this page
+            lordoTotal = api
+                .column( 2, { page: 'current'} )
+                .data()
+                .reduce( function (a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0 );
+            taraTotal = api
+            .column( 3, { page: 'current'} )
+            .data()
+            .reduce( function (a, b) {
+                return intVal(a) + intVal(b);
+            }, 0 );
+            pageTotal = lordoTotal-taraTotal;
+            // Update footer
+            $( api.column( 3 ).footer() ).html(
+                'Netto '+pageTotal +' ( '+ total +' Netto totale)'
+            );
+        },		
     	dom: '<"row"<"col-lg-3 col-sm-12 text-center"B><"col-lg-3 col-sm-12 text-center"f><"col-lg-3 col-sm-12 text-center"l><"col-lg-3 col-sm-12 text-center"<"totale">>>rtp',
         language: {
             "lengthMenu": "_MENU_",
@@ -464,15 +519,23 @@ $(function () {
         },
     	lengthMenu: [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "Tutti"]],
         buttons: [
-            'excel',
             {
 				extend: 'pdfHtml5',
 				title: 'Ingresso',
 				filename: "{{ $user->name }}-<?php echo \Carbon\Carbon::now(); ?>",
+				footer: true,
 				exportOptions: {
-					columns: [0,1,2,3,4,5]
+					columns: [0,1,2,3,4,5,7]
 					}
-                }
+                },
+                {
+    				extend: 'excel',
+    				title: 'Ingresso',
+    				filename: "{{ $user->name }}-<?php echo \Carbon\Carbon::now(); ?>",
+    				exportOptions: {
+    					columns: [0,1,2,3,4,5,7]
+    					}
+                    },               
         ],
 		processing: true,
         serverSide: true,
@@ -557,7 +620,15 @@ $(function () {
         					@endif
             				},
             					targets: 6
-                          },           
+                          },
+                          {
+                				render: function ( data, type, row )
+                				{
+                					return row[6];
+                				},
+                					targets: 7								
+                              }, 
+                           
             ],
             initComplete: function(settings, json){
                 $('a#deleteIn').on('click',function(){
@@ -581,6 +652,50 @@ $(function () {
                 },
 	})
 	$('table.uscita').DataTable({
+        "footerCallback": function ( row, data, start, end, display ) {
+            var api = this.api(), data;
+ 
+            // Remove the formatting to get integer data for summation
+            var intVal = function ( i ) {
+                return typeof i === 'string' ?
+                    i.replace(/[\$,]/g, '')*1 :
+                    typeof i === 'number' ?
+                        i : 0;
+            };
+ 
+            // Total over all pages
+            lordo = api
+                .column( 2 )
+                .data()
+                .reduce( function (a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0 );
+            tara = api
+            .column( 3 )
+            .data()
+            .reduce( function (a, b) {
+                return intVal(a) + intVal(b);
+            }, 0 );   
+            total = lordo-tara;
+            // Total over this page
+            lordoTotal = api
+                .column( 2, { page: 'current'} )
+                .data()
+                .reduce( function (a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0 );
+            taraTotal = api
+            .column( 3, { page: 'current'} )
+            .data()
+            .reduce( function (a, b) {
+                return intVal(a) + intVal(b);
+            }, 0 );
+            pageTotal = lordoTotal-taraTotal
+            // Update footer
+            $( api.column( 5 ).footer() ).html(
+                'Netto '+pageTotal +' ( '+ total +' Netto totale)'
+            );
+        },
     	dom: '<"row"<"col-lg-3 col-sm-12 text-center"B><"col-lg-3 col-sm-12 text-center"f><"col-lg-3 col-sm-12 text-center"l><"col-lg-3 col-sm-12 text-center"<"totale">>>rtp',
         language: {
             "lengthMenu": "_MENU_",
@@ -591,15 +706,22 @@ $(function () {
         },
     	lengthMenu: [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "Tutti"]],
         buttons: [
-            'excel',
             {
 				extend: 'pdfHtml5',
 				title: 'Uscita',
 				filename: "{{ $user->name }}-<?php echo \Carbon\Carbon::now(); ?>",
 				exportOptions: {
-					columns: [0,1,2,3,4,5]
+					columns: [0,1,2,3,4,5,6]
 					}
-                }
+                },
+                {
+    				extend: 'excel',
+    				title: 'Uscita',
+    				filename: "{{ $user->name }}-<?php echo \Carbon\Carbon::now(); ?>",
+    				exportOptions: {
+    					columns: [0,1,2,3,4,5,6]
+    					}
+                    },
         ],
 		processing: true,
         serverSide: true,
@@ -683,8 +805,15 @@ $(function () {
             					return '';
         					@endif
             				},
-            					targets: 6
-                          },           
+            					targets: 7
+                          },
+                          {
+                				render: function ( data, type, row )
+                				{
+                					return row[6];
+                				},
+                					targets: 6								
+                              },                             
             ],
             initComplete: function(settings, json){
                 $('a#deleteEx').on('click',function(){

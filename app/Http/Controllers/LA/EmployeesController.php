@@ -292,14 +292,14 @@ class EmployeesController extends Controller
 	    return $out;
 	}
 	public function prodottiingressoajax($id){
-	    $prodotti = Ingresso::join('prodotti','prodotti.id','=','ingresso.prodotti_id')->join('users','users.id','=','ingresso.users_id')->select('prodotti.codice','prodotti.name','ingresso.carico','ingresso.tara','ingresso.id','users.name as username')->where('ingresso.socio_id','=',$id)->orderBy('ingresso.id','desc');
+	    $prodotti = Ingresso::join('prodotti','prodotti.id','=','ingresso.prodotti_id')->join('users','users.id','=','ingresso.users_id')->select('prodotti.codice','prodotti.name','ingresso.carico','ingresso.tara','ingresso.id','users.name as username','ingresso.created_at')->where('ingresso.socio_id','=',$id)->orderBy('ingresso.id','desc');
 	    $out = Datatables::of($prodotti)->make();
 	    $data = $out->getData();
 	    $out->setData($data);
 	    return $out;
 	}
 	public function prodottiuscitaajax($id){
-	    $prodotti = Uscita::join('prodotti','prodotti.id','=','uscita.prodotti_id')->join('users','users.id','=','uscita.users_id')->select('prodotti.codice','prodotti.name','uscita.scarico','uscita.tara','uscita.id','users.name as username')->where('uscita.socio_id','=',$id)->orderBy('uscita.id','desc');
+	    $prodotti = Uscita::join('prodotti','prodotti.id','=','uscita.prodotti_id')->join('users','users.id','=','uscita.users_id')->select('prodotti.codice','prodotti.name','uscita.scarico','uscita.tara','uscita.id','users.name as username','uscita.created_at')->where('uscita.socio_id','=',$id)->orderBy('uscita.id','desc');
 	    $out = Datatables::of($prodotti)->make();
 	    $data = $out->getData();
 	    $out->setData($data);
