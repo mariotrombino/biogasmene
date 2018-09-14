@@ -523,7 +523,6 @@ $(function () {
 				extend: 'pdfHtml5',
 				title: 'Ingresso',
 				filename: "{{ $user->name }}-<?php echo \Carbon\Carbon::now(); ?>",
-				footer: true,
 				exportOptions: {
 					columns: [0,1,2,3,4,5,7]
 					}
