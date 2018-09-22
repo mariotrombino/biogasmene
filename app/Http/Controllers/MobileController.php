@@ -395,12 +395,24 @@ class MobileController extends Controller
         }
     }
     public function ingressojson(){
-        $prodotto = Ingresso::where('ingresso.users_id',Auth::id())->join('prodotti','prodotti.id','=','ingresso.prodotti_id')->join('users','users.id','=','ingresso.socio_id')->where('prodotti.tipo','=','ingresso')->select('ingresso.carico','ingresso.tara','ingresso.created_at','prodotti.name','prodotti.codice','prodotti.tipo','prodotti.id','users.name as username')->orderBy('ingresso.id','desc')->get();
+        if(Auth::user()->type=='Socio'){
+        $prodotto = Ingresso::where('ingresso.socio_id',Auth::id())->join('prodotti','prodotti.id','=','ingresso.prodotti_id')->join('users','users.id','=','ingresso.users_id')->where('prodotti.tipo','=','ingresso')->select('ingresso.carico','ingresso.tara','ingresso.created_at','prodotti.name','prodotti.codice','prodotti.tipo','prodotti.id','users.name as username')->orderBy('ingresso.id','desc')->get();
         return $prodotto->toJson();
+        }
+        else{
+            $prodotto = Ingresso::where('ingresso.users_id',Auth::id())->join('prodotti','prodotti.id','=','ingresso.prodotti_id')->join('users','users.id','=','ingresso.socio_id')->where('prodotti.tipo','=','ingresso')->select('ingresso.carico','ingresso.tara','ingresso.created_at','prodotti.name','prodotti.codice','prodotti.tipo','prodotti.id','users.name as username')->orderBy('ingresso.id','desc')->get();
+        return $prodotto->toJson();
+        }
     }
     public function uscitajson(){
+        if(Auth::user()->type=='Socio'){
+            $prodotto = Uscita::where('uscita.users_id',Auth::id())->join('prodotti','prodotti.id','=','uscita.prodotti_id')->join('users','users.id','=','uscita.users_id')->where('prodotti.tipo','=','uscita')->select('uscita.scarico','uscita.tara','uscita.created_at','prodotti.name','prodotti.codice','prodotti.tipo','users.name as username')->orderBy('uscita.id','desc')->get();
+            return $prodotto->toJson();
+        }
+        else {
         $prodotto = Uscita::where('uscita.users_id',Auth::id())->join('prodotti','prodotti.id','=','uscita.prodotti_id')->join('users','users.id','=','uscita.socio_id')->where('prodotti.tipo','=','uscita')->select('uscita.scarico','uscita.tara','uscita.created_at','prodotti.name','prodotti.codice','prodotti.tipo','users.name as username')->orderBy('uscita.id','desc')->get();
       //  $prodotto = Uscita::where('uscita.users_id',Auth::id())->join('prodotti','prodotti.id','=','uscita.prodotti_id')->join('prodotti_associati','prodotti_associati.prodotti_id','=','uscita.prodotti_id')->where('prodotti.tipo','=','uscita')->select('uscita.scarico','uscita.tara','uscita.created_at','prodotti.name','prodotti.codice','prodotti.tipo','prodotti_associati.ingresso')->orderBy('uscita.id','desc')->get();
         return $prodotto->toJson();
+        }
     }
 }
