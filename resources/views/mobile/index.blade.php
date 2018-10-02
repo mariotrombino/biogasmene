@@ -317,6 +317,7 @@ Effettuato
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/pdfmake.min.js"></script>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
 	<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.16/b-1.5.1/b-html5-1.5.1/r-2.2.1/sl-1.2.5/datatables.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/select/1.2.7/js/dataTables.select.min.js"></script>
 		<script src="{{ asset('/la-assets/plugins/jquery-validation/jquery.validate.min.js') }}"></script>
 	<script type="text/javascript">
 $(document).ready(function(){
@@ -479,6 +480,11 @@ if($ingresso_socio != null && $ingresso_socio != '' && $prodotto_ingresso_socio 
 		})
 	}	 
     @endif
+    var export_option = {
+            exportOptions: {
+                columns: [ 0, 1, 2, 3, 4, 5 ]
+            }			
+    	    }
 	   var tableingresso = $('table.ingresso').DataTable({
 	    	dom: '<"row"<"col-lg-3 col-sm-12 text-center"B><"col-lg-3 col-sm-12 text-center"f><"col-lg-3 col-sm-12 text-center"l><"col-lg-3 col-sm-12 text-center"<"totale">>>rtp',
 	        language: {
@@ -490,8 +496,24 @@ if($ingresso_socio != null && $ingresso_socio != '' && $prodotto_ingresso_socio 
 	        },
 	    	lengthMenu: [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "Tutti"]],
 	        buttons: [
-	            'excel', 'pdf'
+	            $.extend( true, {}, export_option, {
+	                extend: 'excelHtml5',
+	                filename: "{{ $user }}-<?php echo \Carbon\Carbon::now(); ?>-ingresso",
+ 	                action: function( e, dt, node, config ){
+ 	                	var data = dt.buttons.exportData();
+ 	                	$.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, node, config);
+ 	                	for(var i  = 0; i < data.body.length; i++){
+		                	var id_ingresso = data.body[i][6];
+ 		                	console.log(data.body[i][6])            	
+		                	}
+                }	                
+	            } ),
+	            $.extend( true, {}, export_option, {
+	                extend: 'pdfHtml5',
+	                filename: "{{ $user }}-<?php echo \Carbon\Carbon::now(); ?>-ingresso",
+	            } )       
 	        ],
+	        select: true,
 	        stateSave: false,
 	        ajax: {
 	            url: "{{ url('/mobile/ingressojson') }}",
@@ -504,7 +526,7 @@ if($ingresso_socio != null && $ingresso_socio != '' && $prodotto_ingresso_socio 
 	        	{ data: 'tara' },
 	        	{ data: '' },
 	        	{ data: 'created_at' },
-	        	{ data: 'id'}
+ 	        	{ data: 'id'}
 	            ],
 	            order: [[ 5, 'desc' ]],
 	        columnDefs: [
@@ -522,7 +544,7 @@ if($ingresso_socio != null && $ingresso_socio != '' && $prodotto_ingresso_socio 
 		                },
 		                    targets: 6,
 		                    className: "invisible"
-		                },	                             
+		                },           
 	                ],
 	                initComplete: function(){
 		                var totalenetto = tableingresso.column(2).data().sum()-tableingresso.column(3).data().sum();
@@ -544,8 +566,24 @@ if($ingresso_socio != null && $ingresso_socio != '' && $prodotto_ingresso_socio 
         },
     	lengthMenu: [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "Tutti"]],
         buttons: [
-            'excel', 'pdf'
+            $.extend( true, {}, export_option, {
+                extend: 'excelHtml5',
+                filename: "{{ $user }}-<?php echo \Carbon\Carbon::now(); ?>-uscita",
+	                action: function( e, dt, node, config ){
+	                	var data = dt.buttons.exportData();
+	                	$.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, node, config);
+	                	for(var i  = 0; i < data.body.length; i++){
+	                	var id_ingresso = data.body[i][6];
+		                	console.log(data.body[i][6])            	
+	                	}
+            }	                
+            } ),
+            $.extend( true, {}, export_option, {
+                extend: 'pdfHtml5',
+                filename: "{{ $user }}-<?php echo \Carbon\Carbon::now(); ?>-uscita",
+            } )
         ],
+        select: true,
         stateSave: false,
         ajax: {
             url: "{{ url('/mobile/uscitajson') }}",
